@@ -88,7 +88,21 @@ nrow(dataSet[!complete.cases(dataSet),])
 
 
 ```r
-fixedSet <- subset(dataSet, TRUE) #create empty copy of the dataSet
+fixedSet <- subset(dataSet, FALSE) #create empty copy of the dataSet
+fillers <- aggregate(steps ~ date, dataSet, mean) #find means per day
+for(i in nrow(dataSet)) {
+  fixedSet <- dataSet[i,] #copy row
+  if (is.na(dataSet$step[i]))
+  {
+    #if steps is NA, then use daily average value
+    if (length(subset(fillers, date == dataSet$date[i])$steps) > 0) {
+      fixedSet$step[i] <- subset(fillers, date == dataSet$date[i])$steps
+    }
+    else {
+      fixedSet$step[i] <- 0
+    }
+  }
+}
 ```
 
 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
